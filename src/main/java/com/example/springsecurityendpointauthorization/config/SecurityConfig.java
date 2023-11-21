@@ -20,18 +20,31 @@ public class SecurityConfig {
             .and()
             .authorizeHttpRequests()
               .anyRequest().authenticated() /*Endpoint level authorization
-               matcherMethod + authorization rule*/
-            .and()
+               matcherMethod + authorization rule
+               .anyRequest().permitAll()
+               .anyRequest().denyAll()
+               AUTHORITIES:
+               .anyRequest().hasAuthority("read")
+               .anyRequest().hasAnyAuthority("read", "write")
+                ROLES: The role prefix is "ROLE_" by default
+                .anyRequest().hasRole("ADMIN")
+                .anyRequest().hasAnyRole("ADMIN", "USER")
+               */
+             .and()
             .build();
   }
   @Bean
-  public UserDetailsService userDetailsService(){
-   var uds =  new InMemoryUserDetailsManager();
+  public UserDetailsService userDetailsService() {
+    var uds = new InMemoryUserDetailsManager();
 
-   var u = User.withUsername("user")
-       .password(passwordEncoder().encode("12345"))
-       .authorities("read")
-       .build();
+    var u = User.withUsername("user")
+            .password(passwordEncoder().encode("12345"))
+            .authorities("read")
+            .build();
+    var u2 = User.withUsername("juan")
+          .password(passwordEncoder().encode("12345"))
+          .roles("ADMIN") // equivalent to .authorities("ROLE_ADMIN")
+          .build();
 
    uds.createUser(u);
 
